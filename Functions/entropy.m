@@ -36,6 +36,13 @@ function [Hx, Hy, Hxy] = entropy(M, x, y)
         % H(Y) = -Sum_y { P(y)*log2(P(y)) }
         % H(X,Y) = -Sum_x Sum_y { P(x,y) * log2(P(x,y) }
         [Px, Py, Pxy] = probability(M,x,y);
+
+        % Make any probability non zero, to avoid errors with the logarithm
+        Px = max(Px, realmin);
+        Py = max(Py, realmin);
+        Pxy = max(Pxy, realmin);
+
+        % Get entropies
         Hx = -sum(Px.*log2(Px));
         Hy = -sum(Py.*log2(Py));
         Hxy = -sum(sum(Pxy.*log2(Pxy)));        

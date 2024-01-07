@@ -1,10 +1,12 @@
-classdef Channel
+classdef Channel < handle
     %CHANNEL Modelates differents types of channels and their noise.
     
     properties
         ChannelType ChannelTypes
         EsNo double
         PlosPnlos double
+        Es double
+        N0 double
     end
     
     methods (Access = public)
@@ -40,6 +42,8 @@ classdef Channel
             %   s = Modulated symbols, as complex points.
             % Outputs:
             %   r = Modulated symbols with noise added.
+            this.Es = 1/length(s) * sum(abs(s).^2);
+            this.N0 = this.Es/this.EsNo;
             switch this.ChannelType
                 case ChannelTypes.AWGN
                     n = this.AWGN_noise(s);
@@ -56,14 +60,20 @@ classdef Channel
                     error("Unknown channel type.")
             end
         end
+
+        function Es = get_Es(this)
+            Es = this.Es;
+        end
+
+        function N0 = get_N0(this)
+            N0 = this.N0;
+        end
     end
 
     methods (Access = private)
         function n = AWGN_noise(this, s)
             %AWGN_NOISE Generates Additive Waveform Gaussian Noise.
-            Es = 1/length(s) * sum(abs(s).^2);
-            N0 = Es/this.EsNo;
-            n = sqrt(N0/2)*(randn(size(s)) + 1i*randn(size(s)));
+            n = sqrt(this.N0/2)*(randn(size(s)) + 1i*randn(size(s)));
         end
 
         function [n, h] = Rayleigh_noise(this, s)

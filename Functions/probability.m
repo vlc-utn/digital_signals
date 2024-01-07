@@ -68,10 +68,9 @@ function [Px, Py, Pxy, Py_x, Px_y] = probability(M, x, y)
             for k = 1:1:length(x) % For each element
                 Pxy(i,j) = Pxy(i,j) + (y(k)==symbols(j) && x(k)==symbols(i));
             end
-            Pxy(i,j) = Pxy(i,j) / length(x);
-            Pxy(i,j) = max(Pxy(i,j), realmin);  % Avoids "NaN" values.
         end
     end
+    Pxy = Pxy / length(x);
 
     if (nargout < 3)
         return
