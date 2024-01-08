@@ -13,8 +13,8 @@ h = ones(1, sample_qtty);       % Flat fading channel gain.
 include_entropy_plot = false;   % Includes channel capacity calculated from entropy.
 
 %% Intermidiate variables
-colors = ["b", "g", "c", "m", "k"];         % Colors for plotting
-legendString = cell(1, length(M));          % For text in plot as "16-QAM"
+colors = ["b", "r", "g", "c", "m", "k"];   % Colors for plotting
+legendString = cell(1, length(M)+1);              % For text in plot as "16-QAM"
 
 % Channel capacity calculated with entropy formula
 C_with_entropy = zeros(1, length(EsNo_dB));
@@ -22,7 +22,6 @@ C_with_entropy = zeros(1, length(EsNo_dB));
 
 % Channel capacity calculated with Gaussian probabilty density function
 C_with_pdf = zeros(1, length(EsNo_dB));
-
 
 for m=1:length(M)
     x = randi([0, M(m)-1], 1, sample_qtty);     % Input symbol stream.
@@ -62,6 +61,12 @@ for m=1:length(M)
             LineStyle="--"); hold on;
     end
 end
+
+% Calculate theoretical maximum channel capacity, with shannon formula
+C_maximum = log2(1+10.^(EsNo_dB/10));
+plot(EsNo_dB, C_maximum, LineWidth=1.0, Color=colors(end), ...
+    LineStyle='-'); hold on;
+legendString{end} = "Maximum";
 
 legend(legendString);
 xlabel("Es/N0 [dB]");
