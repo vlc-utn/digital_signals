@@ -47,6 +47,7 @@ classdef Channel < handle
             switch this.ChannelType
                 case ChannelTypes.AWGN
                     n = this.AWGN_noise(s);
+                    h = ones(size(s));
                     r = s + n;
                 case ChannelTypes.Rayleigh
                     [n, h] = this.Rayleigh_noise(s);
