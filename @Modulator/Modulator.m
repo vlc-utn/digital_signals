@@ -39,7 +39,6 @@ classdef Modulator
         end
 
         [s, constellation] = modulate(this, x)
-        Hx = get_entropy(x)
     end
 end
 
