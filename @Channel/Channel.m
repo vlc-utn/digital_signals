@@ -7,25 +7,29 @@ classdef Channel < handle
         PlosPnlos double
         Es double
         N0 double
+        L double
     end
     
     methods (Access = public)
-        function this = Channel(ChannelType, EsNo_dB, options)
+        function this = Channel(ChannelType, EsNo_dB, L, options)
             %CHANNEL Constructor
             % Args:
             %   - ChannelType = Type of channel (AWGN, Rayleigh, Ricean).
             %   - EsNo_dB = Relationship between symbol energy (Es) and 
-            %   Noise PSD (No)
+            %   Noise PSD (No).
+            %   - L = Oversampling factor.
             %   - options.PlosPnlos_dB = Relationship between the power of the
             %   LOS component and power of the NLOS component (used for
             %   Ricean channel).
             arguments
                 ChannelType ChannelTypes
                 EsNo_dB double
+                L double = 1
                 options.PlosPnlos_dB double = -1
             end
             this.ChannelType = ChannelType;
             this.EsNo = 10^(EsNo_dB/10);
+            this.L = L;
             if (this.ChannelType == ChannelTypes.Ricean)
                 if (options.PlosPnlos_dB == -1)
                     error("Should specify 'PlosPnlos_dB' for Ricean channel.")
@@ -42,7 +46,7 @@ classdef Channel < handle
             %   s = Modulated symbols, as complex points.
             % Outputs:
             %   r = Modulated symbols with noise added.
-            this.Es = 1/length(s) * sum(abs(s).^2);
+            this.Es = this.L/length(s) * sum(abs(s).^2);
             this.N0 = this.Es/this.EsNo;
             switch this.ChannelType
                 case ChannelTypes.AWGN

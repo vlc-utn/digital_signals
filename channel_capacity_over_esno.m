@@ -10,6 +10,10 @@ M = [4, 16, 64];                % Number of symbols. Modulation order.
 sample_qtty = 1e4;              % Amount of samples used in the simulation.
 EsNo_dB = -10:1:30;             % Repeat the simulation for every value of EbNo.
 h = ones(1, sample_qtty);       % Flat fading channel gain.
+beta = 0.5;                     % Square root rised cosine (srrc) slope
+L = 10;                         % [samples/symbol] Oversampling factor
+duration = 5;                   % Duration of the srrc pulse in symbol times.
+
 include_entropy_plot = false;   % Includes channel capacity calculated from entropy.
 
 %% Intermidiate variables
@@ -18,7 +22,6 @@ legendString = cell(1, length(M)+1);              % For text in plot as "16-QAM"
 
 % Channel capacity calculated with entropy formula
 C_with_entropy = zeros(1, length(EsNo_dB));
-
 
 % Channel capacity calculated with Gaussian probabilty density function
 C_with_pdf = zeros(1, length(EsNo_dB));
@@ -30,12 +33,14 @@ for m=1:length(M)
     for i=1:length(EsNo_dB)
         mod = Modulator(mod_type, M(m));
         [s, constellation] = mod.modulate(x);
+        s = pulse_shaping_srrc(s, beta, L, duration);
         
-        channel = Channel("AWGN", EsNo_dB(i));
+        channel = Channel("AWGN", EsNo_dB(i), L);
         r = channel.add_noise(s);
         N0 = channel.get_N0();
         
         demod = Demodulator(mod_type, M(m), constellation);
+        r = pulse_deshaping_srrc(r, beta, L, duration);
         y = demod.demodulate(r);
         
         % Channel capacity base on the normal distribution condional
