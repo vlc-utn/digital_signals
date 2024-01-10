@@ -8,26 +8,28 @@
 clc; clear; close all;
 
 %% Parameters
-Tsym = 1;           % [seg] Symbol time.
-fs   = 100;         % [Hz] Sample frecuency.
+fsym = 5;           % [Hz] Symbol time.
+fs   = 50;          % [Hz] Sample frecuency.
 
-% The sinc function will be evaluated for:
-%   -sinc_cutoff*Tsym < t < sinc_cutoff*Tsym 
-sinc_cutoff = 3;
+% Pulses will be truncated after:
+%   -duration*Tsym < t < duration*Tsym 
+duration = 5;
 
 alpha = 0.5;        % Alpha constant for raised cosine (0 < alpha < 1)
 beta = 0.5;         % Beta constant for srrc (0 < beta < 1)           
 
 %% Temporal signals
-% Time vector
-t = -Tsym*10:1/fs:Tsym*10;            
+
+Tsym = 1/fsym;                                  % Symbol time
+L = fs/fsym;                                    % Oversampling factor
+t = -duration*Tsym : 1/fs : duration*Tsym;      % Time vector        
 
 % Pulse signal
 pulse = (t > -Tsym/2) .* (t <= Tsym/2);       
 
 % Sinc signal
 sinc= sinc(t/Tsym);                             
-sinc = sinc .* (t > -sinc_cutoff*Tsym) .* (t <= sinc_cutoff*Tsym);
+sinc = sinc .* (t > -duration*Tsym) .* (t <= duration*Tsym);
 
 % Raised cosine signal
 raised_cosine = (sin(pi*t/Tsym) ./ (pi*t/Tsym)) .* (cos(pi*alpha*t/Tsym)) ./ (1 - (2*alpha*t/Tsym).^2);
@@ -36,12 +38,7 @@ raised_cosine(t==Tsym/(2*alpha)) = (alpha/2)*sin(pi/(2*alpha));
 raised_cosine(t==-Tsym/(2*alpha)) = (alpha/2)*sin(pi/(2*alpha));
 
 % Root Square Raised Cosine signal
-num = sin(pi*t*(1-beta)/Tsym) + ((4*beta*t/Tsym).*cos(pi*t*(1+beta)/Tsym));
-den = pi*t.*(1-(4*beta*t/Tsym).^2)/Tsym;
-srrc = 1/sqrt(Tsym)*num./den; 
-srrc(ceil(length(t)/2))=1/sqrt(Tsym)*((1-beta)+4*beta/pi);  % srrc(t=0)
-srrc(t==Tsym/(4*beta))=(beta/sqrt(2*Tsym))*( (1+2/pi)*sin(pi/(4*beta)) + (1-2/pi)*cos(pi/(4*beta)));
-srrc(t==-Tsym/(4*beta))=(beta/sqrt(2*Tsym))*( (1+2/pi)*sin(pi/(4*beta)) + (1-2/pi)*cos(pi/(4*beta)));
+srrc = srrc_pulse(beta, L, duration);
 srrc = conv(srrc, srrc, "same"); % Apply two filters, Rx and Tx.
 
 %% FFT (frequency domain)
@@ -65,7 +62,7 @@ DFT_RC = fftshift(DFT_RC);
 
 % Root Square Raised Cosine signal
 DFT_SRRC = fft(srrc, N0);
-DFT_SrRC = DFT_SRRC ./ abs(DFT_SRRC(1));    % Normalize          
+DFT_SRRC = DFT_SRRC ./ abs(DFT_SRRC(1));    % Normalize          
 DFT_SRRC = fftshift(DFT_SRRC);
 
 %% Plotting
@@ -91,7 +88,7 @@ xlabel("Time [seg]");
 ylabel("Amplitude");
 title("Sinc");
 grid on;
-legend(sprintf("-%d.Tsym < t < %d.Tsym",sinc_cutoff, sinc_cutoff));
+legend(sprintf("-%d.Tsym < t < %d.Tsym",duration, duration));
 
 subplot(4,2,4);
 plot(freq, (abs(DFT_sinc)))
@@ -118,7 +115,7 @@ grid on;
 xlim([-1/Tsym*5, 1/Tsym*5]);
 
 subplot(4,2,7);
-plot(t, raised_cosine);
+plot(t, srrc);
 xlabel("Time [seg]");
 ylabel("Amplitude");
 title("Square Root Raised Cosine (SRRC) (h_{tx}(t)*h_{rx}(t))");
