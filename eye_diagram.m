@@ -26,4 +26,4 @@ r = channel.add_noise(s);
 
 %% Eye diagram
 [~, v_r, delay] = pulse_deshaping_srrc(r, beta, L, duration);
-eye = plot_eye_diagram(real(v_r), L, delay, 5, 1000);
+eye = Scope.plot_eye_diagram(real(v_r), L, delay, 5, 1000);

@@ -54,7 +54,7 @@ for m=1:length(M)
       
         % Channel capacity with entropy and formulas
         if (include_entropy_plot)
-            C_with_entropy(i) = channel_capacity(M(m),x,y);
+            C_with_entropy(i) = Scope.channel_capacity(M(m),x,y);
         end
     end
 

@@ -27,7 +27,7 @@ function [Hx, Hy, Hxy] = entropy(M, x, y)
     if (nargin == 2)
         % Calculate entropy for one random variable as:
         % H(X) = -Sum_x { P(x)*log2(P(x)) }
-        Px = probability(M, x);
+        Px = Scope.probability(M, x);
         Hx = -sum(Px.*log2(Px));
 
     elseif (nargin == 3)
@@ -35,7 +35,7 @@ function [Hx, Hy, Hxy] = entropy(M, x, y)
         % H(X) = -Sum_x { P(x)*log2(P(x)) }
         % H(Y) = -Sum_y { P(y)*log2(P(y)) }
         % H(X,Y) = -Sum_x Sum_y { P(x,y) * log2(P(x,y) }
-        [Px, Py, Pxy] = probability(M,x,y);
+        [Px, Py, Pxy] = Scope.probability(M,x,y);
 
         % Make any probability non zero, to avoid errors with the logarithm
         Px = max(Px, realmin);

@@ -17,11 +17,11 @@ function C = channel_capacity(M,x,y)
     arguments (Output)
         C double
     end
-    [Hx, Hy, Hxy] = entropy(M,x,y);
+    [Hx, Hy, Hxy] = Scope.entropy(M,x,y);
     C = Hx + Hy - Hxy;
 
     % Alternate expression for channel capacity, as seen in the theory
-    %     [Px, Py, Pxy, Py_x, Px_y] = probability(M,x,y);
+    %     [Px, Py, Pxy, Py_x, Px_y] = Scope.probability(M,x,y);
     %     expression = (Px*ones(1,M))' .* Py_x .* (log2(Py_x ./ (Py*ones(1,M)) ));
     %     C = sum(sum(expression));
 end
