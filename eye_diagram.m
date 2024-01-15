@@ -2,9 +2,10 @@
 % Plot the eye diagram for a received pulse shaped symbols stream.
 
 clc; clear; close all;
+addpath("Functions");
 
 %% Parameters
-mod_type = ModulationTypes.PAM;     % Modulation type
+mod_type = ModulationTypes.QAM;     % Modulation type
 M = 4;                              % Modulation order
 symbol_qtty = 1e4;                  % Amount of symbols to send
 beta = 1;                           % Slope of the SRRC filter
@@ -26,4 +27,4 @@ r = channel.add_noise(s);
 
 %% Eye diagram
 [~, v_r, delay] = pulse_deshaping_srrc(r, beta, L, duration);
-eye = Scope.plot_eye_diagram(real(v_r), L, delay, 5, 1000);
+eye = Scope.plot_eye_diagram(v_r, L, delay, 3, 1000);
