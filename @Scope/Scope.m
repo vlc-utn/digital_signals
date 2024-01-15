@@ -18,7 +18,11 @@ classdef Scope
         [Px, Py, Pxy, Py_x, Px_y] = probability(M, x, y)
         [Hx, Hy, Hxy] = entropy(M, x, y)
         C = channel_capacity(M,x,y)
+
+        % All plots
         eye = plot_eye_diagram(v_r, L, delay, trace_length, trace_qtty)
+        plot_constellation(constellation)
+        plot_IQ(points)
     end
 end
 
