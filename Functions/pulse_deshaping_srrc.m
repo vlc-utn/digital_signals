@@ -28,7 +28,7 @@ function [u_r, v_r, delay] = pulse_deshaping_srrc(r, beta, L, duration)
         delay double
     end
 
-    [srrc, delay] = srrc_pulse(beta, L, duration);
+    [srrc, delay] = Modulator.srrc_pulse(beta, L, duration);
     delay = 2*delay;
 
     % Use "full" to get values of the pulse before and after the symbol

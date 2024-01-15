@@ -31,9 +31,9 @@ for m=1:length(M)
     y = zeros(1, length(x));                    % Ouput symbol stream.    
 
     for i=1:length(EsNo_dB)
-        mod = Modulator(mod_type, M(m));
-        [s, constellation] = mod.modulate(x);
-        s = pulse_shaping_srrc(s, beta, L, duration);
+        [u, constellation] = Modulator.modulate(x, mod_type, M(m));
+        v = Modulator.upsample(u, L);
+        s = Modulator.pulse_shaping_srrc(v, beta, L, duration);
         
         channel = Channel("AWGN", EsNo_dB(i), L);
         r = channel.add_noise(s);

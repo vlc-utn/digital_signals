@@ -1,44 +1,36 @@
 classdef Modulator
-    %MODULATOR Digital modulator.
+    %MODULATOR Digital modulator. This class encompasses all the
+    %functionality needed for a transmitter to work properly.
     
-    properties
-        ModType ModulationTypes     % Modulation type
-        M double                    % Modulation order
-        % If "True" Matlab's Communication Toolbox functions will be used 
-        % for modulation
-        UseCommToolbox logical      
-            
+    properties            
     end
 
     methods (Access = private)
-        [s, constellation] = pam_mod(this, x)
-        [s, constellation] = psk_mod(this, x)
-        [s, constellation] = qam_mod(this, x)
-        [ref,varargout]= constructQAM(this, M)
-        [grayCoded]=dec2gray(this, decInput)
+        
     end
     
     methods (Access = public)
-        function this = Modulator(ModType, M, options)
-        %MODULATOR Constructor function.
-        % Args: 
-        %   ModType = Modulation Type.
-        %   M = Modulation orden. Amount of constellation points.
-        %   UseCommToolbox = [true | false]. If "true", Matlab's
-        %    Communication Toolbox functions will be used. Otherwise,
-        %    personal modulation functions will be used.
-            arguments
-                ModType ModulationTypes
-                M double
-                options.UseCommToolbox logical = false
-            end
-
-            this.ModType = ModType;
-            this.M = M;
-            this.UseCommToolbox = options.UseCommToolbox;
+        function this = Modulator()
+        %MODULATOR Empty constructor. Used as a NameSpace.
         end
 
-        [s, constellation] = modulate(this, x)
+    end
+
+    methods(Static)
+        % Each method represents a functionality from the transmitter
+        [u, constellation] = modulate(d, mod_type, M, use_comm_toolbox)
+        v = upsample(u, L)
+        [s, p, delay] = pulse_shaping_srrc(v, beta, L, duration)
+
+        % Modulation types
+        [u, constellation] = pam_mod(d, M)
+        [u, constellation] = psk_mod(d, M)
+        [u, constellation] = qam_mod(d, M)
+        [ref,varargout] = constructQAM(M)
+        [grayCoded]=dec2gray(decInput)
+
+        % Utility
+        [srrc, delay] = srrc_pulse(beta, L, duration)
     end
 end
 

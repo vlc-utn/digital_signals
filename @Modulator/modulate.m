@@ -1,34 +1,49 @@
-function [s, constellation] = modulate(this, x)
-    %MODULATE Modulate symbol stream "x", according to the modulator
-    % specifications set in the constructor.
+function [u, constellation] = modulate(d, mod_type, M, use_comm_toolbox)
+    %MODULATE Modulate symbol stream "d", using the modulation ModType,
+    % with "M" symbols.
+    %
     % Args:
-    %   this = Modulator class reference.
-    %   x = Input Symbols. Values should be between [0, M-1].
+    %   - d = Input Symbols. Values should be between [0, M-1].
+    %   - ModType = modulation type ["QAM", "PAM", "PSK", etc]
+    %   - M = Modulation order. Amount of symbols.
+    %   - use_comm_toolbox = (optional). Use Matlab's communication
+    %   toolbox.
     % Outputs:
-    %   s = Modulated symbols as complex points.
-    %   constellation = Reference constellation used.
-    if (this.UseCommToolbox)
-        switch this.ModType
+    %   - u = Modulated symbols as complex points.
+    %   - constellation = Reference constellation used.
+    arguments(Input)
+        d (1,:) double
+        mod_type ModulationTypes
+        M double
+        use_comm_toolbox logical = false
+    end
+    arguments(Output)
+        u (1,:) double
+        constellation (1,:) double
+    end
+
+    if (use_comm_toolbox)
+        switch mod_type
             case ModulationTypes.QAM
-                s = qammod(x, this.M);
-                constellation = qammod(0:1:this.M-1, this.M);
+                u = qammod(d, M);
+                constellation = qammod(0:1:M-1, M);
             case ModulationTypes.PAM
-                s = pammod(x, this.M);
-                constellation = pammod(0:1:this.M-1, this.M);
+                u = pammod(d, M);
+                constellation = pammod(0:1:M-1, M);
             case ModulationTypes.PSK
-                s = pskmod(x, this.M);
-                constellation = pskmod(0:1:this.M-1, this.M);
+                u = pskmod(d, M);
+                constellation = pskmod(0:1:M-1, M);
             otherwise
                 error("Unknown Modulation type.");
         end
     else
-        switch this.ModType
+        switch mod_type
             case ModulationTypes.QAM
-                [s, constellation] = this.qam_mod(x);
+                [u, constellation] = Modulator.qam_mod(d, M);
             case ModulationTypes.PAM
-                [s, constellation] = this.pam_mod(x);
+                [u, constellation] = Modulator.pam_mod(d, M);
             case ModulationTypes.PSK
-                [s, constellation] = this.psk_mod(x);
+                [u, constellation] = Modulator.psk_mod(d, M);
             otherwise
                 error("Unknown Modulation type.");
         end

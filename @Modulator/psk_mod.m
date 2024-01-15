@@ -1,20 +1,22 @@
-function [s, constellation] = psk_mod(this, x)
+function [u, constellation] = psk_mod(d, M)
     %PSK_MOD Pulse Amplitude Modulation
+    %
     % Args:
-    %   this = Modulator class reference.
-    %   x = Input Symbols. Values should be between [0, M-1].
+    %   - d = Input Symbols. Values should be between [0, M-1].
+    %   - M = Modulation order. Amount of symbols.
+    %
     % Outputs:
-    %   s = Modulated symbols as complex points.
-    %   constellation = Reference constellation used.
+    %   - u = Modulated symbols as complex points.
+    %   - constellation = Reference constellation used.
     arguments (Input)
-        this Modulator
-        x (1,:) int32
+        d (1,:) double
+        M double
     end
     arguments (Output)
-        s (1,:) double
+        u (1,:) double
         constellation (1,:) double
     end
-    m = 1:1:this.M;
-    constellation= (cos((m-1)*2*pi/this.M) + 1i*sin((m-1)*2*pi/this.M));
-    s = constellation(x+1);
+    m = 1:1:M;
+    constellation = (cos((m-1)*2*pi/M) + 1i*sin((m-1)*2*pi/M));
+    u = constellation(d+1);
 end

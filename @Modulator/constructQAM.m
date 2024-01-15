@@ -1,3 +1,4 @@
+% TODO
 % Nota: una implementacion real de QAM tiene hardcodeado el mapa de la
 % constelacion, asi que no tiene sentido parsear esta funcion. Digamos que
 % "funciona" de momento.
@@ -13,10 +14,10 @@
 % with the IQ components breakup in a symmetric rectangular M-QAM constellation,
 % where M is the level of QAM modulation. The returned constellation points are
 % arranged such that the index of the points are arranged in a Gray-coded manner.
-function [ref,varargout]= constructQAM(this, M)
+function [ref,varargout]= constructQAM(M)
     n=0:1:M-1; %Sequential address from 0 to M-1 (1xM dimension)
     %------Addresses in Kmap - Gray code walk---------------
-    a=this.dec2gray(n); %Convert linear addresses to gray code
+    a=Modulator.dec2gray(n); %Convert linear addresses to gray code
     N=sqrt(M); %Dimension of K-Map - N x N matrix
     a=reshape(a,N,N).'; %NxN gray coded matrix
     evenRows=2:2:size(a,1); %identify alternate rows

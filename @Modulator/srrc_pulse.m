@@ -11,7 +11,7 @@ function [srrc, delay] = srrc_pulse(beta, L, duration)
     %       -duration*Tsym  < t < duration*Tsym
     %
     % Outputs:
-    %   - srrc = Square Root Rised Cosine. Size will be (1, 2*L*duration+1);
+    %   - srrc = Square Root Rised Cosine. Length will be "2*L*duration+1";
     %   - delay = FIR filter delay. Number of samples until the middle 
     %   point of the pulse (delay = L*duration).
     arguments(Input)
