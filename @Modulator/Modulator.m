@@ -4,10 +4,6 @@ classdef Modulator
     
     properties            
     end
-
-    methods (Access = private)
-        
-    end
     
     methods (Access = public)
         function this = Modulator()
