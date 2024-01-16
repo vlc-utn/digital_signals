@@ -33,20 +33,23 @@ for m=1:length(M)
     for i=1:length(EsNo_dB)
         [u, constellation] = Modulator.modulate(x, mod_type, M(m));
         v = Modulator.upsample(u, L);
-        s = Modulator.pulse_shaping_srrc(v, beta, L, duration);
+        [s, ~, delay_tx] = Modulator.pulse_shaping_srrc(v, beta, L, duration);
         
         channel = Channel("AWGN", EsNo_dB(i), L);
         r = channel.add_noise(s);
         N0 = channel.get_N0();
         
-        demod = Demodulator(mod_type, M(m), constellation);
-        r = pulse_deshaping_srrc(r, beta, L, duration);
-        y = demod.demodulate(r);
+        [v_r, ~, delay_rx] = Demodulator.pulse_filter_srrc(r, beta, L, duration);
+        u_r = Demodulator.downsample(v_r, L, delay_tx + delay_rx);
+
+        % Equalizer TODO
+
+        y = Demodulator.demodulate(u_r, mod_type, M(m), constellation);
         
         % Channel capacity base on the normal distribution condional
         % probability (PDF formula)
         Hx = log2(M(m));  % Ideal input symbol entropy
-        pdfs = exp(-(abs(ones(M(m),1)*r - constellation'*h).^2)/N0);
+        pdfs = exp(-(abs(ones(M(m),1)*u_r - constellation'*h).^2)/N0);
         prob_yx = max(pdfs, realmin);                       % prob of each constellation points
         prob_yx = prob_yx./ (ones(M(m),1)*sum(prob_yx));    % normalize probabilities
         Hyx = -mean(sum(prob_yx.*log2(prob_yx)));

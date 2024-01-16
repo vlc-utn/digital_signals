@@ -1,20 +1,19 @@
-function [u_r, v_r, delay] = pulse_deshaping_srrc(r, beta, L, duration)
-    %PULSE_DESHAPING_SRRC. Given a stream of srrc pulses, this function
-    % convolves the stream with the srrc pulse, and then downsamples the
-    % result by a factor of "L".
+function [v_r, p, delay] = pulse_filter_srrc(r, beta, L, duration)
+    %PULSE_FILTER_SRRC. Given a stream of srrc pulses, this function
+    % convolves the stream with the srrc pulse, giving a raised cosine
+    % pulse form.
     %
     % Args:
-    %   - u = Symbol vector.
+    %   - r = Received samples vector.
     %   - beta = slope for frequency response of the srrc pulse.
     %   - L = Oversampling factor (amount of samples per symbol).
     %   - duration = Amount of "Tsym" that the pulse will last before
     %   being truncated, as an integer.
     %
     % Outputs:
-    %   - u_r = Constellation received symbols.
     %   - v_r = Pulse shaped received samples.
-    %   - delay = delay of the sum of the receiver and transmitter FIR
-    %   filters.
+    %   - p = pulse shaping filter
+    %   - delay = Delay of the FIR filter of the receiver.
 
     arguments(Input)
         r (1,:) double
@@ -23,16 +22,14 @@ function [u_r, v_r, delay] = pulse_deshaping_srrc(r, beta, L, duration)
         duration double
     end
     arguments(Output)
-        u_r (1,:) double
         v_r (1,:) double
+        p (1,:) double
         delay double
     end
 
     [srrc, delay] = Modulator.srrc_pulse(beta, L, duration);
-    delay = 2*delay;
+    p = srrc;
 
     % Use "full" to get values of the pulse before and after the symbol
     v_r = conv(r, srrc, "full");
-
-    u_r = v_r(delay+1 : L : end - delay); 
 end
