@@ -23,6 +23,7 @@ classdef Scope
         eye = plot_eye_diagram(v_r, L, delay, trace_length, trace_qtty)
         plot_constellation(constellation)
         plot_IQ(points)
+        plot_fir_filter(fir, options)
     end
 end
 

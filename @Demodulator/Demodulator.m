@@ -13,7 +13,7 @@ classdef Demodulator
 
     methods(Static)
         % Each method represents a functionality from the receiver
-        [v_r, p, delay] = pulse_filter_srrc(r, beta, L, duration)
+        [v_r, g, delay] = pulse_filter_srrc(r, beta, L, nTaps)
         u_r = downsample(v_r, L, delay)
         d_r = demodulate(a_r, mod_type, M, constellation, use_comm_toolbox)
 

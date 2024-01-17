@@ -1,29 +1,26 @@
-function [srrc, delay] = srrc_pulse(beta, L, duration)
+function [srrc, delay] = srrc_pulse(beta, L, nTaps)
     %SRRC_PULSE. Square Root Rised Cosine. Returns the shape of the FIR 
     % pulse filter.
     %
     % Args:
     %   - beta = SRRC frequency slope (0 < beta < 1). 
     %   - L = Oversampling factor (amount of samples per symbol).
-    %   - duration = Amount of "Tsym" that the pulse will last before
-    %   being truncated. The symbol will last for:
-    %       -duration*L     < n < duration*L
-    %       -duration*Tsym  < t < duration*Tsym
+    %   - nTaps = The filter will have "nTaps + 1" coefficients.
     %
     % Outputs:
-    %   - srrc = Square Root Rised Cosine. Length will be "2*L*duration+1";
+    %   - srrc = Square Root Rised Cosine. Length will be "nTaps + 1";
     %   - delay = FIR filter delay. Number of samples until the middle 
-    %   point of the pulse (delay = L*duration).
+    %   point of the pulse (delay = nTaps/2).
     arguments(Input)
         beta double
         L double
-        duration double
+        nTaps double
     end
     arguments(Output)
         srrc (1,:) double
         delay double
     end
-    n = - duration*L : 1 : duration*L;  % Sample vector
+    n = -nTaps/2 : 1 : nTaps/2;  % Sample vector
 
     % SRRC function
     num = sin(pi*n*(1-beta)/L) + ((4*beta*n/L).*cos(pi*n*(1+beta)/L));
@@ -36,6 +33,5 @@ function [srrc, delay] = srrc_pulse(beta, L, duration)
     srrc(n==L/(4*beta))=temp; 
     srrc(n==-L/(4*beta))=temp;
 
-    % FIR filter delay
-    delay = (length(srrc)-1)/2; %FIR filter delay
+    delay = (length(n)-1)/2; %FIR filter delay
 end

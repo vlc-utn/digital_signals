@@ -16,7 +16,7 @@ classdef Modulator
         % Each method represents a functionality from the transmitter
         [u, constellation] = modulate(d, mod_type, M, use_comm_toolbox)
         v = upsample(u, L)
-        [s, p, delay] = pulse_shaping_srrc(v, beta, L, duration)
+        [s, p, delay] = pulse_shaping_srrc(v, beta, L, nTaps)
 
         % Modulation types
         [u, constellation] = pam_mod(d, M)
@@ -25,8 +25,11 @@ classdef Modulator
         [ref,varargout] = constructQAM(M)
         [grayCoded]=dec2gray(decInput)
 
-        % Utility
-        [srrc, delay] = srrc_pulse(beta, L, duration)
+        % Pulse shaping
+        [srrc, delay] = srrc_pulse(beta, L, nTaps)
+        [rc, delay] = rc_pulse(alpha, L, nTaps)
+        [sinc_p, delay] = sinc_pulse(L, nTaps)
+        [rect, delay] = rect_pulse(L, nTaps)
     end
 end
 
