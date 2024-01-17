@@ -23,6 +23,4 @@ function [r, h_c, N0] = add_rayleigh_noise(s, EsNo_dB, L)
     h_c = 1/sqrt(2)*(randn(size(s)) + 1i*randn(size(s)));
     [n, N0] = Channel.get_wgn(s, EsNo_dB, L);
     r = s.*h_c + n;
-    %r = s.*abs(h_c) + n;
-    %r = r./abs(h_c);        % Filter that compensates channel attenuation
 end

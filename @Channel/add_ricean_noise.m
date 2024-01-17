@@ -28,6 +28,5 @@ function [r, h_c, N0] = add_ricean_noise(s, EsNo_dB, L, PlosPnlos_dB)
     sigma = sqrt(1/(2*(k+1)));  % Standard devaiton of normal distribution
     h_c = (sigma*randn(size(s)) + u) + 1i*(sigma*randn(size(s)) + u);
     [n, N0] = Channel.get_wgn(s, EsNo_dB, L);
-    r = s.*abs(h_c) + n;
-    r = r./abs(h_c);        % Filter that compensates channel attenuation
+    r = s.*h_c + n;
 end
