@@ -1,79 +1,63 @@
 %% Channel capacity over EbNo
-% Get the channel capacity as a function of the EbNo, for different 
+% Get the channel capacity as a function of the EsNo, for different 
 % modulation techniques (M-QAM, M-PAM, M-PSK)
 clc; clear; close all;
-addpath("Functions");
 
 %% Parameters
 mod_type = "QAM";               % Modulation type.
 M = [4, 16, 64];                % Number of symbols. Modulation order.
-sample_qtty = 1e4;              % Amount of samples used in the simulation.
-EsNo_dB = -10:1:30;             % Repeat the simulation for every value of EbNo.
-h = ones(1, sample_qtty);       % Flat fading channel gain.
+symbol_qtty = 1e4;              % Amount of symbols used in the simulation.
+EsNo_dB = -10:2:30;             % Repeat the simulation for every value of EsNo.
+L = 20;                         % [samples/symbol] Oversampling factor
 beta = 0.5;                     % Square root rised cosine (srrc) slope
-L = 10;                         % [samples/symbol] Oversampling factor
 duration = 5;                   % Duration of the srrc pulse in symbol times.
-
-include_entropy_plot = false;   % Includes channel capacity calculated from entropy.
 
 %% Intermidiate variables
 colors = ["b", "r", "g", "c", "m", "k"];   % Colors for plotting
 legendString = cell(1, length(M)+1);              % For text in plot as "16-QAM"
 
 % Channel capacity calculated with entropy formula
-C_with_entropy = zeros(1, length(EsNo_dB));
+C_entropy = zeros(1, length(EsNo_dB));
 
 % Channel capacity calculated with Gaussian probabilty density function
-C_with_pdf = zeros(1, length(EsNo_dB));
+C_pdf = zeros(1, length(EsNo_dB));
 
 for m=1:length(M)
-    x = randi([0, M(m)-1], 1, sample_qtty);     % Input symbol stream.
-    y = zeros(1, length(x));                    % Ouput symbol stream.    
+    d = randi([0, M(m)-1], 1, symbol_qtty);     % Input symbol stream.
+    d_r = zeros(1, symbol_qtty);                % Ouput symbol stream.   
+
+    % Modulator
+    [u, constellation] = Modulator.modulate(d, mod_type, M(m));
+    v = Modulator.upsample(u, L);
+    [s, h_tx, delay_tx] = Modulator.pulse_shaping_srrc(v, beta, L, duration);
 
     for i=1:length(EsNo_dB)
-        [u, constellation] = Modulator.modulate(x, mod_type, M(m));
-        v = Modulator.upsample(u, L);
-        [s, ~, delay_tx] = Modulator.pulse_shaping_srrc(v, beta, L, duration);
-        
-        channel = Channel("AWGN", EsNo_dB(i), L);
-        r = channel.add_noise(s);
-        N0 = channel.get_N0();
-        
-        [v_r, ~, delay_rx] = Demodulator.pulse_filter_srrc(r, beta, L, duration);
+        % Channel
+        [r, h_c, N0] = Channel.add_awgn_noise(s, EsNo_dB(i), L);
+  
+        % Demodulator
+        r = Demodulator.flat_fading_equalizer(r, h_c);
+        [v_r, h_rx, delay_rx] = Demodulator.pulse_filter_srrc(r, beta, L, duration);
         u_r = Demodulator.downsample(v_r, L, delay_tx + delay_rx);
 
-        % Equalizer TODO
 
-        y = Demodulator.demodulate(u_r, mod_type, M(m), constellation);
+        d_r = Demodulator.demodulate(u_r, mod_type, M(m), constellation);
         
-        % Channel capacity base on the normal distribution condional
-        % probability (PDF formula)
-        Hx = log2(M(m));  % Ideal input symbol entropy
-        pdfs = exp(-(abs(ones(M(m),1)*u_r - constellation'*h).^2)/N0);
-        prob_yx = max(pdfs, realmin);                       % prob of each constellation points
-        prob_yx = prob_yx./ (ones(M(m),1)*sum(prob_yx));    % normalize probabilities
-        Hyx = -mean(sum(prob_yx.*log2(prob_yx)));
-        C_with_pdf(i) = Hx - Hyx;
+
+        h_c = Demodulator.downsample(h_c, L, delay_tx);
+        C_pdf(i) = Theory.channel_capacity_from_pdf(u_r, constellation, h_c, N0);
       
         % Channel capacity with entropy and formulas
-        if (include_entropy_plot)
-            C_with_entropy(i) = Scope.channel_capacity(M(m),x,y);
-        end
+        C_entropy(i) = Scope.channel_capacity(M(m),d,d_r);
     end
-
-    plot(EsNo_dB, C_with_pdf, LineWidth=1.0, Color=colors(m), ...
-        LineStyle='-'); hold on;
+    plot(EsNo_dB, C_pdf, LineWidth=1.0, Color=colors(m), LineStyle='-'); hold on;
     legendString{m} = strcat(num2str(M(m)), "-", mod_type);
-    if (include_entropy_plot)
-        plot(EsNo_dB, C_with_entropy, LineWidth=1.0, Color=colors(m), ...
-            LineStyle="--"); hold on;
-    end
+    plot(EsNo_dB, C_entropy, LineWidth=1.0, Color=colors(m), LineStyle="--"); hold on;
 end
 
 % Calculate theoretical maximum channel capacity, with shannon formula
-C_maximum = log2(1+10.^(EsNo_dB/10));
-plot(EsNo_dB, C_maximum, LineWidth=1.0, Color=colors(end), ...
-    LineStyle='-'); hold on;
+C_maximum = Theory.maximum_channel_capacity(EsNo_dB);
+plot(EsNo_dB, C_maximum, LineWidth=1.0, Color=colors(end), LineStyle='-'); hold on;
 legendString{end} = "Maximum";
 
 legend(legendString);

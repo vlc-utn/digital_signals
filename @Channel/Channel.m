@@ -1,99 +1,20 @@
 classdef Channel < handle
     %CHANNEL Modelates differents types of channels and their noise.
-    
+
     properties
-        ChannelType ChannelTypes
-        EsNo double
-        PlosPnlos double
-        Es double
-        N0 double
-        L double
     end
     
     methods (Access = public)
-        function this = Channel(ChannelType, EsNo_dB, L, options)
-            %CHANNEL Constructor
-            % Args:
-            %   - ChannelType = Type of channel (AWGN, Rayleigh, Ricean).
-            %   - EsNo_dB = Relationship between symbol energy (Es) and 
-            %   Noise PSD (No).
-            %   - L = Oversampling factor.
-            %   - options.PlosPnlos_dB = Relationship between the power of the
-            %   LOS component and power of the NLOS component (used for
-            %   Ricean channel).
-            arguments
-                ChannelType ChannelTypes
-                EsNo_dB double
-                L double = 1
-                options.PlosPnlos_dB double = -1
-            end
-            this.ChannelType = ChannelType;
-            this.EsNo = 10^(EsNo_dB/10);
-            this.L = L;
-            if (this.ChannelType == ChannelTypes.Ricean)
-                if (options.PlosPnlos_dB == -1)
-                    error("Should specify 'PlosPnlos_dB' for Ricean channel.")
-                else
-                    this.PlosPnlos = 10^(options.PlosPnlos_dB/10);
-                end
-            end
-        end
-
-        function [r, n, h] = add_noise(this, s)
-            %ADD_NOISE Adds noise to the transmitted signal.
-            % Args:
-            %   this = Channel class.
-            %   s = Modulated symbols, as complex points.
-            % Outputs:
-            %   r = Modulated symbols with noise added.
-            this.Es = this.L/length(s) * sum(abs(s).^2);
-            this.N0 = this.Es/this.EsNo;
-            switch this.ChannelType
-                case ChannelTypes.AWGN
-                    n = this.AWGN_noise(s);
-                    h = ones(size(s));
-                    r = s + n;
-                case ChannelTypes.Rayleigh
-                    [n, h] = this.Rayleigh_noise(s);
-                    r = abs(h).*s + n;
-                    r = r./abs(h);  % Filtro que compensa atenuacion del canal
-                case ChannelTypes.Ricean
-                    [n, h] = this.Ricean_noise(s);
-                    r = abs(h).*s + n;
-                    r = r./abs(h); % Filtro que compensa atenuacion del canal
-                otherwise
-                    error("Unknown channel type.")
-            end
-        end
-
-        function Es = get_Es(this)
-            Es = this.Es;
-        end
-
-        function N0 = get_N0(this)
-            N0 = this.N0;
+        function this = Channel()
+            %CHANNEL Empty constructor. Class is used as NameSpace
         end
     end
 
-    methods (Access = private)
-        function n = AWGN_noise(this, s)
-            %AWGN_NOISE Generates Additive Waveform Gaussian Noise.
-            n = sqrt(this.N0/2)*(randn(size(s)) + 1i*randn(size(s)));
-        end
-
-        function [n, h] = Rayleigh_noise(this, s)
-            %RAYLEIGH_NOISE Generates Rayleigh noise.
-            n = this.AWGN_noise(s);
-            h = 1/sqrt(2)*(randn(size(s)) + 1i*randn(size(s)));
-        end
-        function [n, h] = Ricean_noise(this, s)
-            %RICEAN_NOISE Generates Ricean noise
-            k = this.PlosPnlos;
-            u = sqrt(k/(2*(k+1)));
-            sigma = sqrt(1/(2*(k+1)));
-            h = (sigma*randn(size(s)) + u) + 1i*(sigma*randn(size(s)) + u);
-            n = this.AWGN_noise(s);
-        end
+    methods(Static)
+        [n, N0] = get_wgn(s, EsNo_dB, L)
+        [r, h_c, N0] = add_awgn_noise(s, EsNo_dB, L, h_c)
+        [r, h_c, N0] = add_rayleigh_noise(s, EsNo_dB, L)
+        [r, h_c, N0] = add_ricean_noise(s, EsNo_dB, L, PlosPnlos_dB)
     end
 end
 
