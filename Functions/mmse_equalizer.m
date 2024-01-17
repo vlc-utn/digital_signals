@@ -31,19 +31,20 @@ function [w, n0, error]= mmse_equalizer(h,N, EsNo_dB)
     first_row(1) = h(1);
     H = toeplitz(first_column, first_row);
 
-    % Get pseudo inverse matrix
-    Hp = (conj(H)'*H)^-1 * conj(H)'; 
+    % Get pseudo inverse matrix. Note: A' is the complex conjugate traspose, 
+    % A.' is only traspose.
+    Hp = (H'*H)^-1 * H'; 
 
     % Get the optimum delay, as a Matlab index.
-    [~, n0] = max(diag(H*(conj(H)'*H + eye(N)/EsNo)^-1*Hp));
+    [~, n0] = max(diag(H*(H'*H + eye(N)/EsNo)^-1*Hp));
 
     % Get delta function with optimum delay
     delta_no = zeros(length(h) + N - 1, 1);
     delta_no(n0) = 1;
 
     % Get equalizer
-    w = (Hp*H + eye(N)/EsNo)^-1*conj(H)'*delta_no;
+    w = (Hp*H + eye(N)/EsNo)^-1*H'*delta_no;
 
     % Get error of the equalizer
-    error = 1 - delta_no'*H*(Hp*H + eye(N)/EsNo)^-1*conj(H)'*delta_no;
+    error = 1 - delta_no.'*H*(Hp*H + eye(N)/EsNo)^-1*H'*delta_no;
 end

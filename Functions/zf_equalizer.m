@@ -28,7 +28,7 @@ function [w, n0, error]= zf_equalizer(h,N)
     H = toeplitz(first_column, first_row);
 
     % Get pseudo inverse matrix
-    Hp = (conj(H)'*H)^-1 * conj(H)'; 
+    Hp = (H'*H)^-1 * H'; 
 
     % Get the optimum delay, as a Matlab index.
     [~, n0] = max(diag(H*Hp));
@@ -41,5 +41,5 @@ function [w, n0, error]= zf_equalizer(h,N)
     w = Hp*delta_no;
 
     % Get error of the equalizer
-    error = 1 - delta_no'*H*Hp*delta_no;
+    error = 1 - delta_no.'*H*Hp*delta_no;
 end

@@ -22,6 +22,6 @@ function v = upsample(u, L)
 
     % Concatenate each column to create a single column vector, and 
     % traspose.
-    v = v(:)';
+    v = v(:).';
 end
 
