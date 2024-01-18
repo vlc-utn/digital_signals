@@ -5,7 +5,7 @@
 clc; clear; close all;
 
 %% Parameters
-sample_qtty = 1e5;                  % Number of samples.
+symbol_qtty = 1e5;                  % Number of symbols to transmit.
 EsNo_dB = 0:2:40;                   % EsNo.
 mod_type = "QAM";                   % Modulation type.
 M = [4,16,64];                      % Number of symbols.
@@ -25,7 +25,7 @@ legendString = cell(1, 2*length(M));        % For legend in plot, as "16-QAM"
 ser = zeros(1, length(EsNo_dB));            % Symbol error rate
 
 for m=1:1:length(M)
-    d = randi([0, M(m)-1], 1, sample_qtty); % Input symbols
+    d = randi([0, M(m)-1], 1, symbol_qtty); % Input symbols
 
     % Modulator
     [u, constellation] = Modulator.modulate(d, mod_type, M(m));
@@ -49,7 +49,7 @@ for m=1:1:length(M)
         u_r = Demodulator.downsample(v_r, L, delay_tx + delay_rx);
         d_r = Demodulator.demodulate(u_r, mod_type, M(m), constellation);
 
-        ser(i) = sum(d~=d_r)/sample_qtty;
+        ser(i) = sum(d~=d_r)/symbol_qtty;
     end
 
     switch channel_type
