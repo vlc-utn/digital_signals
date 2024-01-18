@@ -15,9 +15,7 @@ function plot_fir_filter(fir, options)
     N0 = 1024 * 2^(nextpow2(length(fir)));      % Samples for the fft
     freq= 2*pi/N0*(-N0/2:N0/2-1);               % Frequency vector
 
-    DFT = fft(fir, N0);
-    DFT = DFT ./ abs(DFT(1)); % Normalize
-    DFT = fftshift(DFT);
+    DFT = fftshift(fft(fir, N0));
     DFT_dB = 20*log10(abs(DFT));
 
     figure();
