@@ -21,6 +21,6 @@ function C_max = maximum_channel_capacity(EsNo_dB, h_c)
     % value, all possible values for the channel capacity "C_max". Then,
     % the mean is done for each column, getting the mean value of the
     % channel capacity.
-    C_max = mean(log2(1 + abs(h_c).^2.' * EsNo) );
+    C_max = mean(log2(1 + (abs(h_c).^2).' * EsNo./mean(abs(h_c).^2) ));
 end
 
