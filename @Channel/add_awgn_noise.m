@@ -24,8 +24,9 @@ function [r, h_c, N0] = add_awgn_noise(s, EsNo_dB, L, h_c)
         h_c (1,:) double
         N0 double
     end
-    [n, N0] = Channel.get_wgn(s, EsNo_dB, L);
-    r = conv(s, h_c, "full") + n;
+    r = conv(s, h_c, "full");
+    [n, N0] = Channel.get_wgn(r, EsNo_dB, L);
+    r = r + n;
     if (length(h_c) == 1)
         h_c = h_c*ones(size(s));
     end
