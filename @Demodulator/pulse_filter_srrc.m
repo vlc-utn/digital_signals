@@ -1,4 +1,4 @@
-function [v_r, g, delay] = pulse_filter_srrc(r, beta, L, duration)
+function [v_r, g, delay] = pulse_filter_srrc(r, beta, L, nTaps)
     %PULSE_FILTER_SRRC. Given a stream of srrc pulses, this function
     % convolves the stream with the srrc pulse, giving a raised cosine
     % pulse form.
@@ -18,7 +18,7 @@ function [v_r, g, delay] = pulse_filter_srrc(r, beta, L, duration)
         r (1,:) double
         beta double
         L double
-        duration double
+        nTaps double
     end
     arguments(Output)
         v_r (1,:) double
@@ -26,7 +26,7 @@ function [v_r, g, delay] = pulse_filter_srrc(r, beta, L, duration)
         delay double
     end
 
-    [srrc, delay] = Modulator.srrc_pulse(beta, L, duration);
+    [srrc, delay] = Modulator.srrc_pulse(beta, L, nTaps);
     g = srrc;
 
     % Use "full" to get values of the pulse before and after the symbol
