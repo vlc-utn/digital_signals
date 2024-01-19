@@ -1,9 +1,9 @@
-function d_r = demodulate(a_r, mod_type, M, constellation, use_comm_toolbox)
+function d_r = demodulate(u_r, mod_type, M, constellation, use_comm_toolbox)
     %DEMODULATE Convert an array of complex mapped points into digital
     % symbols.
     %
     % Args:
-    %   - a_r = Vector of complex points, after equalization.
+    %   - u_r = Vector of complex points, after equalization.
     %   - mod_type = Modulation type.
     %   - M = Modulation order. Amount of symbols.
     %   - constellation = Digital symbols mapped as complex points.
@@ -12,7 +12,7 @@ function d_r = demodulate(a_r, mod_type, M, constellation, use_comm_toolbox)
     % Outputs:
     %   - d_r = Received Digital symbols.
     arguments(Input)
-        a_r (1,:) double
+        u_r (1,:) double
         mod_type ModulationTypes
         M double
         constellation (1,:) double
@@ -24,15 +24,15 @@ function d_r = demodulate(a_r, mod_type, M, constellation, use_comm_toolbox)
     if(use_comm_toolbox)
         switch mod_type
             case ModulationTypes.QAM
-                d_r = qamdemod(a_r, M);
+                d_r = qamdemod(u_r, M);
             case ModulationTypes.PAM
-                d_r = pamdemod(a_r, M);
+                d_r = pamdemod(u_r, M);
             case ModulationTypes.PSK
-                d_r = pskdemod(a_r, M);
+                d_r = pskdemod(u_r, M);
             otherwise
                 error("Unknown Modulation type.");
         end
     else
-        d_r = Demodulator.find_minimum_symbol_distance(a_r, constellation);
+        d_r = Demodulator.find_minimum_symbol_distance(u_r, constellation);
     end
 end

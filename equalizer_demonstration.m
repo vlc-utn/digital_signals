@@ -1,21 +1,21 @@
 %% EQUALIZER EXAMPLE
-% Plots channel and equalizer frequency responses
+% Plots channel and equalizer frequency responses, for an arbitrary channel
+% response defined in the time domain.
 
 clc; clear; close all;
-addpath("Functions")
 
 %% Parameters
-N = 14;                         % Length of the equalizer filter
+nTaps = 14;                     % Length of the equalizer filter
 Fs = 100;                       % [Hz] Sampling frequency
 L = 5;                          % Oversampling factor
 
+%% Calculations
 Ts = 1 / Fs;                    % Sampling time
 Tsym = L * Ts;                  % Symbol time
 t = -6*Tsym : Ts : 6*Tsym;      % Time vector for channel response
 
 h_t = 1 ./ (1 + (t/Tsym).^2);   % Channel temporal response
 
-%% Calculations
 % Add noise to the channel
 N0 = 0.001;
 h_t = h_t + N0*randn(1, length(h_t));
@@ -23,11 +23,11 @@ h_t = h_t + N0*randn(1, length(h_t));
 % Sample channel at n*Tsym samples.
 h_n = h_t(1:L:end);
 
-% Get equalizer filter
-[w, delay, error] = zf_equalizer(h_n, N);
+% Get equalizer filter (the transmitted signal will be a Dirac's delta
+% which, after passing through the channel, returns the impulse response
+% "h_n").
+[h_sys, w, delay, error] = Demodulator.zf_equalizer(h_n, h_n, nTaps);
 
-% Get total system response, channel + equalizer 
-h_sys = conv(h_n, w);
 
 %% Plotting
 % Plot frequency response of the channel, of the equalizer, and both
