@@ -17,11 +17,14 @@ classdef Demodulator
         [a_r, w, n0, error]= zf_equalizer(r, h, nTaps)
         [a_r, w, n0, error]= mmse_equalizer(r, h, nTaps, EsNo_dB)
 
-
         % Each method represents a functionality from the receiver
         [v_r, g, delay] = pulse_filter_srrc(a_r, beta, L, nTaps)
         u_r = downsample(v_r, L, delay)
         d_r = demodulate(u_r, mod_type, M, constellation, use_comm_toolbox)
+
+        % Defects
+        z = receiver_impairments(r, g, phi, dc_i, dc_q)
+        w = blind_iq_compensation(z, constellation)
 
         % Utility
         d_r = find_minimum_symbol_distance(a_r, constellation)
