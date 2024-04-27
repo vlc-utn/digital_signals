@@ -18,6 +18,8 @@ classdef Modulator
         v = upsample(u, L)
         [s, p, delay] = pulse_shaping_srrc(v, beta, L, nTaps)
 
+        [u, U, s] = ofdm(d, constellation, Ncp)
+
         % Modulation types
         [u, constellation] = pam_mod(d, M)
         [u, constellation] = psk_mod(d, M)

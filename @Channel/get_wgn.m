@@ -10,17 +10,17 @@ function [n, N0] = get_wgn(s, EsNo_dB, L)
     %   - n = White Gaussian Noise, of the same size as "s".
     %   - N0 = Noise energy.
     arguments(Input)
-        s (1,:) double
+        s (:,:) double
         EsNo_dB double
         L double = 1
     end
     arguments(Output)
-        n (1,:) double
+        n (:,:) double
         N0 double
     end
     % Calculate N0 from EsN0
     EsNo = 10^(EsNo_dB/10);
-    Es = L/length(s) * sum(abs(s).^2);
+    Es = L/numel(s) * sum(sum(abs(s).^2));
     N0 = Es/EsNo;
 
     % Calculate WGN

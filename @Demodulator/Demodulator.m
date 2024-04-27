@@ -22,6 +22,8 @@ classdef Demodulator
         u_r = downsample(v_r, L, delay)
         d_r = demodulate(u_r, mod_type, M, constellation, use_comm_toolbox)
 
+        [U_r, u_r, d_r] = ofdm(r, constellation, Ncp)
+
         % Defects
         z = receiver_impairments(r, g, phi, dc_i, dc_q)
         w = blind_iq_compensation(z, constellation)

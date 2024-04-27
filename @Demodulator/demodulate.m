@@ -12,14 +12,14 @@ function d_r = demodulate(u_r, mod_type, M, constellation, use_comm_toolbox)
     % Outputs:
     %   - d_r = Received Digital symbols.
     arguments(Input)
-        u_r (1,:) double
+        u_r (:,:) double
         mod_type ModulationTypes
         M double
         constellation (1,:) double
         use_comm_toolbox logical = false
     end
     arguments(Output)
-        d_r (1,:) double
+        d_r (:,:) double
     end
     if(use_comm_toolbox)
         switch mod_type
